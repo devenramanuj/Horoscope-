@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>દેવ જ્યોતિષ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'app-dark': '#0b0d17',       
+                        'app-card': 'rgba(30, 35, 60, 0.7)',       
+                        'app-yellow': '#FFD700',
+                        'app-accent': '#ff9800',     
+                        'app-text-gray': '#9ca3af',
+                    },
+                    fontFamily: {
+                        'gujarati': ['"Noto Sans Gujarati"', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans Gujarati', sans-serif;
+            background: radial-gradient(circle at center, #1a1f3c 0%, #0b0d17 100%);
+            background-attachment: fixed;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .heading-underline::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 0.2;
+            transition: 0s;
+        }
+
+        /* Diamond Chart Styles */
+        .diamond-chart {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; 
+            background-color: #fffbe6;
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+        .diamond-chart svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .house-text { font-size: 10px; font-weight: bold; fill: #d97706; }
+        .rashi-num { font-size: 8px; fill: #a8a29e; }
+    </style>
+</head>
+<body class="text-white h-screen flex flex-col overflow-hidden w-full bg-app-dark">
+
+    <!-- SPLASH SCREEN (For Full Screen Trigger) -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#0b0d17] flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="relative mb-8 animate-pulse-slow">
+            <div class="w-32 h-32 rounded-full bg-gradient-to-b from-app-yellow to-orange-600 blur-xl opacity-20 absolute top-0 left-0"></div>
+            <div class="relative z-10 text-6xl text-app-yellow drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+        <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-app-yellow to-orange-400 mb-2">દેવ જ્યોતિષ</h1>
+        <p class="text-gray-400 mb-12 text-sm tracking-widest uppercase">તમારું દૈનિક વૈદિક માર્ગદર્શક</p>
+        
+        <button onclick="startApp()" class="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full border border-app-yellow/50 text-app-yellow shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all hover:bg-app-yellow hover:text-black hover:shadow-[0_0_40px_rgba(255,215,0,0.6)] active:scale-95">
+            <span class="relative z-10 font-bold text-lg flex items-center gap-2">
+                <span>શુભારંભ કરો</span> <i class="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+            </span>
+        </button>
+        <p class="absolute bottom-8 text-xs text-gray-600">v2.0 • Made with ❤️ in Gujarat</p>
+    </div>
+
+    <!-- MAIN APP UI -->
+    <!-- Header Section -->
+    <header class="px-4 py-3 flex justify-between items-center glass-effect z-20 border-b-0 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-app-yellow/20 to-orange-500/20 flex items-center justify-center border border-app-yellow/30 text-app-yellow shadow-[0_0_10px_rgba(255,215,0,0.3)]">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div>
+                <h1 class="text-app-yellow text-xl font-bold tracking-wide leading-none">દેવ જ્યોતિષ</h1>
+                <p class="text-gray-400 text-[10px] mt-0.5">વૈદિક જ્યોતિષ માર્ગદર્શન</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-sm font-bold text-white" id="live-time">--:--</p>
+            <p class="text-[10px] text-app-yellow" id="live-date">-- --- ----</p>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs (Sticky) -->
+    <div class="px-2 py-2 bg-[#0b0d17]/80 backdrop-blur-md z-10 border-b border-white/5">
+        <div class="flex justify-between gap-2 overflow-x-auto hide-scrollbar pb-1 px-1">
+            <button id="btn-dainik" onclick="switchTab('dainik')" class="ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-gradient-to-b from-app-yellow to-orange-500 text-black p-2 rounded-xl font-bold text-xs shadow-lg transition-all transform scale-105">
+                <i class="fas fa-sun text-lg"></i> <span>દૈનિક</span>
+            </button>
+            <button id="btn-varshik" onclick="switchTab('varshik')" class="ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-white/5 text-gray-400 border border-white/10 p-2 rounded-xl font-medium text-xs transition-all hover:bg-white/10 hover:text-white">
+                <i class="far fa-calendar-alt text-lg"></i> <span>વાર્ષિક</span>
+            </button>
+            <button id="btn-jivan" onclick="switchTab('jivan')" class="ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-white/5 text-gray-400 border border-white/10 p-2 rounded-xl font-medium text-xs transition-all hover:bg-white/10 hover:text-white">
+                <i class="far fa-user text-lg"></i> <span>જીવન</span>
+            </button>
+            <button id="btn-kundli" onclick="switchTab('kundli')" class="ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-white/5 text-gray-400 border border-white/10 p-2 rounded-xl font-medium text-xs transition-all hover:bg-white/10 hover:text-white">
+                <i class="fas fa-star text-lg"></i> <span>કુંડળી</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto px-4 pb-24 hide-scrollbar relative w-full max-w-5xl mx-auto mt-4">
+        
+        <div class="text-center mb-6 fade-in" id="main-heading-container">
+            <h2 id="main-heading" class="text-xl font-semibold text-white heading-underline">તમારી રાશિ પસંદ કરો</h2>
+            <p class="text-gray-400 text-xs mt-2" id="sub-heading">સચોટ ભવિષ્ય જાણવા માટે નીચેની રાશિ પર ક્લિક કરો</p>
+        </div>
+
+        <!-- 1. Rashi Grid View -->
+        <div id="view-rashi-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-6 fade-in">
+            <script>
+                const zodiacSvgs = {
+                    mesh: "M12,4c-4.4,0-8,3.6-8,8c0,3.2,1.8,6,4.5,7.4l0.9-1.7C7.2,16.5,6,14.4,6,12c0-3.3,2.7-6,6-6s6,2.7,6,6c0,2.4-1.2,4.5-3.3,5.7l0.9,1.7C18.2,18,20,15.2,20,12C20,7.6,16.4,4,12,4z M12,12v9",
+                    vrushabh: "M12,4C7.6,4,4,7.6,4,12c0,3,1.7,5.6,4.1,7l-0.9,1.7C4.7,19.1,2,15.8,2,12C2,6.5,6.5,2,12,2s10,4.5,10,10c0,3.8-2.7,7.1-5.2,8.7l-0.9-1.7C18.3,17.6,20,15,20,12C20,7.6,16.4,4,12,4z M12,12c-2.2,0-4,1.8-4,4s1.8,4,4,4s4-1.8,4-4S14.2,12,12,12z",
+                    mithun: "M15,2v2h-3v16h3v2H9v-2h3V4H9V2H15z M7,2v2H6v16h1v2H4v-2h1V4H4V2H7z M20,2v2h-1v16h1v2h-3v-2h1V4h-1V2H20z",
+                    kark: "M6.4,14c-0.1,1.5,0.5,3,1.6,4.1c1.1,1.1,2.5,1.7,4,1.7c2.4,0,4.4-1.5,5.3-3.6l1.8,0.8C17.8,19.6,15.1,21.7,12,21.7c-2,0-3.9-0.8-5.4-2.3c-1.5-1.5-2.3-3.4-2.3-5.4c0-3.1,2.1-5.8,5-6.7V5.4C5.7,6.5,3.5,9.9,3.5,14H6.4z M17.6,10c0.1-1.5-0.5-3-1.6-4.1c-1.1-1.1-2.5-1.7-4-1.7c-2.4,0-4.4,1.5-5.3,3.6L4.9,7C6.2,4.4,8.9,2.3,12,2.3c2,0,3.9,0.8,5.4,2.3c1.5,1.5,2.3,3.4,2.3,5.4c0,3.1-2.1,5.8-5,6.7v1.9C18.3,17.5,20.5,14.1,20.5,10H17.6z",
+                    simha: "M12,4c-2.2,0-4,1.8-4,4c0,1.6,1,3,2.4,3.6C9.6,13.2,8,15,8,17c0,2.8,2.2,5,5,5c1.9,0,3.6-1.1,4.4-2.7C17.8,19.8,18,20,18,20s2-1,2-3c0-1.7-1.3-3-3-3c-0.6,0-1.1,0.2-1.6,0.4c-0.1-1.5-0.7-2.9-1.6-4c1.5-0.3,2.7-1.5,2.7-3.1C16.5,5.5,14.5,4,12,4z M12,6c1.1,0,2,0.9,2,2s-0.9,2-2,2s-2-0.9-2-2S10.9,6,12,6z M13,16c0.9,0,1.6,0.6,1.9,1.4c-0.5,0.4-1.1,0.6-1.8,0.6c-1.7,0-3-1.3-3-3c0-1.2,0.7-2.2,1.8-2.7C12.2,13.4,13,14.6,13,16z",
+                    kanya: "M12,4c-2.2,0-4,1.8-4,4v2H6V8c0-3.3,2.7-6,6-6s6,2.7,6,6v6c0,1.1,0.9,2,2,2s2-0.9,2-2v-2h2v2c0,2.2-1.8,4,4,4c-1.5,0-2.9-0.9-3.6-2.1C15.6,17,14.4,18,13,18c-1.5,0-2.7-1.1-2.9-2.5C9.4,17.1,8.1,18,6.5,18c-2.5,0-4.5-2-4.5-4.5h2c0,1.4,1.1,2.5,2.5,2.5c1.4,0,2.5-1.1,2.5-2.5V8C9,6.3,10.3,5,12,5S15,6.3,15,8v4c0,0.6-0.4,1-1,1s-1-0.4-1-1V8C13,5.8,12.6,4,12,4z",
+                    tula: "M2,16h20v2H2V16z M12,4c-2.8,0-5,2.2-5,5h2c0-1.7,1.3-3,3-3s3,1.3,3,3h2C17,6.2,14.8,4,12,4z M4,11h16v2H4V11z",
+                    vrushchik: "M14,4c2.2,0,4,1.8,4,4v4c0,0.6,0.4,1,1,1s1-0.4,1-1V8h2v4c0,1.8-1.2,3.3-2.8,3.8l1.6,2.5l-1.7,1.1l-2-3.1C15.6,16.8,14.9,17,14.1,17H14c-1.3,0-2.5-0.8-3.1-1.9C10.3,16.3,9.2,17,8,17c-1.5,0-2.7-1.1-2.9-2.5C4.4,16.1,3.1,17,1.5,17c-2.5,0-4.5-2-4.5-4.5h2c0,1.4,1.1,2.5,2.5,2.5c1.4,0,2.5-1.1,2.5-2.5V8c0-1.7,1.3-3,3-3s3,1.3,3,3v3c0,0.6,0.4,1,1,1s1-0.4,1-1V8C12,5.8,12.9,4,14,4z",
+                    dhan: "M16,8l-4.5,4.5L10,11l6-6h-4V3h6v6h-2V8z M4,20l12-12l1.5,1.5L5.5,21.5L4,20z M8,16l-4,4l1.5,1.5l4-4L8,16z",
+                    makar: "M16,4c-1.7,0-3,1.3-3,3v2.1C12.1,8.4,11.1,8,10,8c-3.3,0-6,2.7-6,6v2h2v-2c0-2.2,1.8-4,4-4c0.7,0,1.4,0.2,2,0.6V17c0,2.2,1.8,4,4,4c1.5,0,2.9-0.9,3.6-2.2c0.2,0.1,0.4,0.2,0.7,0.2c1.7,0,3-1.3,3-3s-1.3-3-3-3c-0.6,0-1.1,0.2-1.6,0.4c-0.1-1.5-0.7-2.9-1.6-4c1.5-0.3,2.7-1.5,2.7-3.1C19,5.5,17.7,4,16,4z M16,15c1.1,0,2,0.9,2,2s-0.9,2-2,2s-2-0.9-2-2S14.9,15,16,15z M16,6c0.6,0,1,0.4,1,1s-0.4,1-1,1s-1-0.4-1-1S15.4,6,16,6z",
+                    kumbh: "M2,8l2.5-3L7,8l2.5-3L12,8l2.5-3L17,8l2.5-3L22,8h-2l-1.5-1.8L16,8l-2.5-1.8L11,8L8.5,6.2L6,8L3.5,6.2L2,8H2z M2,15l2.5-3L7,15l2.5-3L12,15l2.5-3L17,15l2.5-3L22,15h-2l-1.5-1.8L16,15l-2.5-1.8L11,15l-2.5-1.8L6,15l-2.5-1.8L2,15H2z",
+                    meen: "M8,12c0-2.3-0.9-4.4-2.3-6c1.5-0.8,3.2-1.3,5-1.4V2H9v2.1C7,4.5,5.3,5.6,4,7.1V2H2v19h2v-5.1c1.3,1.5,3,2.6,5,3V21h4v-2.6c-1.8-0.1-3.5-0.6-5-1.4C9.4,15.4,10.1,13.8,10.1,12c0-1.8-0.7-3.4-1.9-4.6h2.8c1,1.3,1.6,2.9,1.6,4.6s-0.6,3.3-1.6,4.6h2.8c1.2-1.2,1.9-2.8,1.9-4.6c0-1.8-0.7-3.4-1.9-4.6h-2.8C9.8,8.6,10.5,10.2,10.5,12c0,1.8-0.7,3.4-1.9,4.6C10.1,15,11.6,13.6,11.6,12z M14.5,7.4C13.3,6.2,11.7,5.5,10,5.5v-3c2.1,0,4.1,0.8,5.7,2.3L14.5,7.4z M15.7,16.6C14.1,18.2,12.1,19,10,19v3c2.1,0,4.1-0.8,5.7-2.3L15.7,16.6z"
+                };
+
+                const rashis = [
+                    {id:'મેષ', svg: zodiacSvgs.mesh, l:'અ, લ, ઈ', c:'from-red-500 to-red-700'},
+                    {id:'વૃષભ', svg: zodiacSvgs.vrushabh, l:'બ, વ, ઉ', c:'from-orange-400 to-orange-600'},
+                    {id:'મિથુન', svg: zodiacSvgs.mithun, l:'ક, છ, ઘ', c:'from-yellow-400 to-yellow-600'},
+                    {id:'કર્ક', svg: zodiacSvgs.kark, l:'ડ, હ', c:'from-gray-200 to-gray-400 text-black'},
+                    {id:'સિંહ', svg: zodiacSvgs.simha, l:'મ, ટ', c:'from-yellow-300 to-orange-500'},
+                    {id:'કન્યા', svg: zodiacSvgs.kanya, l:'પ, ઠ, ણ', c:'from-green-500 to-green-700'},
+                    {id:'તુલા', svg: zodiacSvgs.tula, l:'ર, ત', c:'from-teal-400 to-teal-600'},
+                    {id:'વૃશ્ચિક', svg: zodiacSvgs.vrushchik, l:'ન, ય', c:'from-red-600 to-red-900'},
+                    {id:'ધન', svg: zodiacSvgs.dhan, l:'ભ, ધ, ફ', c:'from-orange-300 to-orange-500'},
+                    {id:'મકર', svg: zodiacSvgs.makar, l:'ખ, જ', c:'from-blue-600 to-blue-800'},
+                    {id:'કુંભ', svg: zodiacSvgs.kumbh, l:'ગ, શ, સ', c:'from-cyan-500 to-blue-600'},
+                    {id:'મીન', svg: zodiacSvgs.meen, l:'દ, ચ, ઝ', c:'from-yellow-200 to-yellow-400 text-black'}
+                ];
+                
+                rashis.forEach(r => {
+                    const textColor = r.c.includes('text-black') ? '#000' : '#fff';
+                    const bgClass = r.c.includes('text-black') ? 'bg-white text-black' : 'bg-white/10 text-white';
+                    
+                    document.write(`
+                    <div onclick="openModal('${r.id}')" class="group ripple glass-effect border border-white/10 rounded-2xl p-3 flex flex-col items-center justify-center aspect-[3/4] hover:bg-white/5 transition-all duration-300 cursor-pointer shadow-lg transform hover:-translate-y-1">
+                        <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br ${r.c} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-500 border-2 border-white/10">
+                            <svg viewBox="0 0 24 24" width="60%" height="60%" fill="${textColor}">
+                                <path d="${r.svg}"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-white font-bold text-md md:text-lg mb-1 group-hover:text-app-yellow transition-colors">${r.id}</h3>
+                        <p class="text-gray-400 text-[10px] md:text-xs font-medium tracking-wide">${r.l}</p>
+                    </div>
+                    `);
+                });
+            </script>
+        </div>
+
+        <!-- 2. Kundli Form View -->
+        <div id="view-kundli-form" class="hidden fade-in max-w-lg mx-auto mt-4">
+            <div class="glass-effect rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10 relative overflow-hidden">
+                <!-- Decorative Background glow -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-app-yellow to-orange-500"></div>
+                
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold text-white mb-1">નવી કુંડળી બનાવો</h3>
+                    <p class="text-gray-400 text-xs">તમારા જન્મના ગ્રહો અને નક્ષત્રોની સચોટ ગણતરી</p>
+                </div>
+                
+                <form onsubmit="submitKundli(event)" id="kundliFormElement" class="space-y-5">
+                    <div class="space-y-1">
+                        <label class="text-app-yellow text-xs font-bold uppercase tracking-wider ml-1">પૂરું નામ</label>
+                        <input type="text" id="k_name" class="w-full bg-[#0b0d17]/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-app-yellow focus:ring-1 focus:ring-app-yellow transition" placeholder="તમારું નામ લખો" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-app-yellow text-xs font-bold uppercase tracking-wider ml-1">જન્મ તારીખ</label>
+                            <input type="date" id="k_date" class="w-full bg-[#0b0d17]/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-app-yellow focus:ring-1 focus:ring-app-yellow transition" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-app-yellow text-xs font-bold uppercase tracking-wider ml-1">જન્મ સમય</label>
+                            <input type="time" id="k_time" class="w-full bg-[#0b0d17]/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-app-yellow focus:ring-1 focus:ring-app-yellow transition" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-app-yellow text-xs font-bold uppercase tracking-wider ml-1">જન્મ સ્થળ</label>
+                        <input type="text" id="k_place" class="w-full bg-[#0b0d17]/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-app-yellow focus:ring-1 focus:ring-app-yellow transition" placeholder="શહેરનું નામ" required>
+                    </div>
+
+                    <button type="submit" class="ripple w-full bg-gradient-to-r from-app-yellow to-orange-500 text-black font-bold py-4 rounded-xl shadow-lg hover:shadow-orange-500/40 hover:scale-[1.02] transition transform text-lg mt-4">
+                        કુંડળી જુઓ
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 3. Kundli Result View (Detailed) -->
+        <div id="view-kundli-result" class="hidden fade-in pb-20 max-w-4xl mx-auto">
+            <!-- User Header -->
+            <div class="glass-effect rounded-2xl p-4 mb-6 flex flex-col md:flex-row justify-between items-center shadow-lg gap-4 border border-white/10">
+                <div class="text-center md:text-left">
+                    <h3 class="text-xl font-bold text-app-yellow mb-1" id="res-name">User Name</h3>
+                    <div class="flex items-center justify-center md:justify-start gap-3 text-gray-300 text-xs">
+                        <span class="bg-white/10 px-2 py-1 rounded"><i class="fas fa-calendar mr-1 text-app-yellow"></i> <span id="res-date"></span></span>
+                        <span class="bg-white/10 px-2 py-1 rounded"><i class="fas fa-clock mr-1 text-app-yellow"></i> <span id="res-time"></span></span>
+                        <span class="bg-white/10 px-2 py-1 rounded"><i class="fas fa-map-marker-alt mr-1 text-app-yellow"></i> <span id="res-place"></span></span>
+                    </div>
+                </div>
+                <button onclick="resetKundli()" class="px-4 py-2 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/10 transition text-xs font-medium flex items-center gap-2">
+                    <i class="fas fa-chevron-left"></i> પાછા જાઓ
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Chart -->
+                <div class="glass-effect rounded-2xl p-4 shadow-lg border border-white/10">
+                     <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-white font-bold text-sm flex items-center gap-2"><i class="fas fa-circle text-[8px] text-app-yellow"></i> લગ્ન કુંડળી</h4>
+                        <span class="text-[10px] bg-app-yellow text-black font-bold px-2 py-0.5 rounded">Lagna Chart</span>
+                     </div>
+                     
+                    <div class="diamond-chart mx-auto max-w-[300px] md:max-w-full shadow-inner">
+                        <svg viewBox="0 0 200 200">
+                            <rect x="0" y="0" width="200" height="200" stroke="#d97706" stroke-width="1.5" fill="none"/>
+                            <line x1="0" y1="0" x2="200" y2="200" stroke="#d97706" stroke-width="1"/>
+                            <line x1="0" y1="200" x2="200" y2="0" stroke="#d97706" stroke-width="1"/>
+                            <line x1="0" y1="100" x2="100" y2="0" stroke="#d97706" stroke-width="1"/>
+                            <line x1="100" y1="0" x2="200" y2="100" stroke="#d97706" stroke-width="1"/>
+                            <line x1="200" y1="100" x2="100" y2="200" stroke="#d97706" stroke-width="1"/>
+                            <line x1="100" y1="200" x2="0" y2="100" stroke="#d97706" stroke-width="1"/>
+
+                            <!-- Planets & Houses -->
+                            <text x="100" y="55" text-anchor="middle" class="house-text" font-size="14">લગ્ન</text>
+                            <text x="100" y="35" text-anchor="middle" class="rashi-num">1</text>
+
+                            <text x="50" y="40" text-anchor="middle" class="house-text">ચંદ્ર</text>
+                            <text x="50" y="20" text-anchor="middle" class="rashi-num">2</text>
+
+                            <text x="25" y="105" text-anchor="middle" class="house-text">શુક્ર, બુધ</text>
+                            <text x="40" y="100" text-anchor="middle" class="rashi-num">4</text>
+
+                            <text x="65" y="170" text-anchor="middle" class="house-text">રાહુ</text>
+                            <text x="50" y="180" text-anchor="middle" class="rashi-num">6</text>
+
+                            <text x="100" y="145" text-anchor="middle" class="house-text">મંગળ</text>
+                            <text x="100" y="160" text-anchor="middle" class="rashi-num">7</text>
+
+                            <text x="170" y="170" text-anchor="middle" class="house-text">ગુરુ</text>
+                            <text x="180" y="150" text-anchor="middle" class="rashi-num">9</text>
+
+                            <text x="175" y="105" text-anchor="middle" class="house-text">સૂર્ય</text>
+                            <text x="160" y="100" text-anchor="middle" class="rashi-num">10</text>
+                            
+                            <text x="170" y="30" text-anchor="middle" class="house-text">શનિ</text>
+                            <text x="180" y="50" text-anchor="middle" class="rashi-num">11</text>
+
+                            <text x="135" y="35" text-anchor="middle" class="house-text">કેતુ</text>
+                            <text x="150" y="20" text-anchor="middle" class="rashi-num">12</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Right Column: Planetary Details -->
+                <div class="space-y-4">
+                    <!-- Planetary Positions Table -->
+                    <div class="glass-effect rounded-2xl p-4 shadow-lg border border-white/10">
+                        <h4 class="text-app-yellow font-bold mb-3 text-sm">ગ્રહ સ્થિતિ (Planets)</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left">
+                                <thead class="text-gray-400 bg-white/5">
+                                    <tr>
+                                        <th class="p-2 rounded-l">ગ્રહ</th>
+                                        <th class="p-2">રાશિ</th>
+                                        <th class="p-2 rounded-r text-right">અંશ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <tr><td class="p-2 text-orange-400 font-bold">લગ્ન</td><td class="p-2">મેષ</td><td class="p-2 text-right">15° 22'</td></tr>
+                                    <tr><td class="p-2 text-white">સૂર્ય</td><td class="p-2">મકર</td><td class="p-2 text-right">04° 11'</td></tr>
+                                    <tr><td class="p-2 text-white">ચંદ્ર</td><td class="p-2">વૃષભ</td><td class="p-2 text-right">22° 45'</td></tr>
+                                    <tr><td class="p-2 text-white">મંગળ</td><td class="p-2">તુલા</td><td class="p-2 text-right">11° 05'</td></tr>
+                                    <tr><td class="p-2 text-white">બુધ</td><td class="p-2">કર્ક</td><td class="p-2 text-right">28° 13'</td></tr>
+                                    <tr><td class="p-2 text-white">ગુરુ</td><td class="p-2">ધન</td><td class="p-2 text-right">08° 56'</td></tr>
+                                    <tr><td class="p-2 text-white">શુક્ર</td><td class="p-2">કર્ક</td><td class="p-2 text-right">14° 30'</td></tr>
+                                    <tr><td class="p-2 text-white">શનિ</td><td class="p-2">કુંભ</td><td class="p-2 text-right">19° 20'</td></tr>
+                                    <tr><td class="p-2 text-gray-400">રાહુ</td><td class="p-2">કન્યા</td><td class="p-2 text-right">02° 10'</td></tr>
+                                    <tr><td class="p-2 text-gray-400">કેતુ</td><td class="p-2">મીન</td><td class="p-2 text-right">02° 10'</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prediction Section -->
+            <div class="glass-effect rounded-2xl p-6 shadow-lg mt-6 border border-white/10">
+                <h3 class="text-lg font-bold text-app-yellow mb-3 flex items-center gap-2"><i class="fas fa-book-open"></i> ફળકથન</h3>
+                <ul class="space-y-3 text-gray-300 text-sm leading-relaxed list-disc list-inside">
+                    <li><strong class="text-white">ગજકેસરી યોગ:</strong> તમારી કુંડળીમાં ચંદ્ર અને ગુરુ કેન્દ્રમાં હોવાથી પ્રબળ ગજકેસરી યોગ બને છે.</li>
+                    <li><strong class="text-white">કારકિર્દી:</strong> કર્મ ભાવમાં સૂર્યની સ્થિતિ સરકારી લાભ દર્શાવે છે.</li>
+                    <li><strong class="text-white">આરોગ્ય:</strong> ષષ્ઠ ભાવમાં રાહુ હોવાથી પેટને લગતી સંભાળ રાખવી.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Area -->
+        <div class="mt-12 pb-6 text-center opacity-60">
+            <p class="text-app-yellow font-bold text-[10px] uppercase tracking-widest">Developed by Devendra Ramanuj</p>
+            <div class="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs">
+                <i class="fas fa-phone-alt text-[10px]"></i>
+                <span>+91 9276505035</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal (Improved) -->
+    <div id="modal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-end sm:items-center justify-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-[#121420] w-full max-w-2xl rounded-t-3xl sm:rounded-3xl border border-gray-800 overflow-hidden shadow-2xl transform transition-all h-[85vh] sm:h-auto flex flex-col">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-[#1e233c] to-[#121420] p-5 flex justify-between items-center border-b border-gray-800 shrink-0 relative overflow-hidden">
+                <!-- Decorative Glow -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-app-yellow/10 blur-3xl rounded-full pointer-events-none"></div>
+                
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-app-yellow flex items-center justify-center text-black shadow-lg shadow-app-yellow/20" id="modal-rashi-icon">
+                        <!-- SVG Icon injected via JS -->
+                    </div>
+                    <div>
+                        <h3 id="modal-title" class="text-white text-2xl font-bold">Title</h3>
+                        <p id="modal-subtitle" class="text-app-yellow text-xs font-bold uppercase tracking-wider">Subtitle</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 transition relative z-10">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 overflow-y-auto flex-1 hide-scrollbar" id="modal-body-container">
+                <div id="modal-content" class="space-y-6">
+                    <!-- Injected Content -->
+                </div>
+            </div>
+
+             <!-- Footer -->
+             <div class="p-4 bg-[#121420] border-t border-gray-800 shrink-0">
+                <button onclick="closeModal()" class="w-full bg-gradient-to-r from-app-yellow to-orange-600 text-black font-bold py-3 rounded-xl shadow-lg hover:shadow-orange-500/30 active:scale-98 transition">
+                    બંધ કરો
+                </button>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        let activeTab = 'dainik';
+        
+        // SPLASH SCREEN LOGIC
+        function startApp() {
+            const splash = document.getElementById('splash-screen');
+            
+            // Request Full Screen
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) {
+                doc.requestFullscreen().catch(err => console.log("Full screen blocked by browser"));
+            } else if (doc.webkitRequestFullscreen) { /* Safari */
+                doc.webkitRequestFullscreen();
+            }
+
+            // Fade out animation
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 700);
+
+            // Start Clock
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+
+        // CLOCK LOGIC (Gujarati)
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            // Simple conversion or just keep English numbers for readability
+            document.getElementById('live-time').innerText = timeString;
+
+            const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+            // Use Gujarati Locale if supported, else fallback
+            try {
+                const dateString = now.toLocaleDateString('gu-IN', options);
+                document.getElementById('live-date').innerText = dateString;
+            } catch(e) {
+                document.getElementById('live-date').innerText = now.toDateString();
+            }
+        }
+
+        // TAB SWITCHING
+        function switchTab(tabName) {
+            activeTab = tabName;
+            
+            ['dainik', 'varshik', 'jivan', 'kundli'].forEach(tab => {
+                const btn = document.getElementById(`btn-${tab}`);
+                if (tab === tabName) {
+                    btn.className = "ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-gradient-to-b from-app-yellow to-orange-500 text-black p-2 rounded-xl font-bold text-xs shadow-lg transition-all transform scale-105";
+                } else {
+                    btn.className = "ripple flex-1 min-w-[80px] flex flex-col items-center gap-1 bg-white/5 text-gray-400 border border-white/10 p-2 rounded-xl font-medium text-xs transition-all hover:bg-white/10 hover:text-white";
+                }
+            });
+
+            const rashiGrid = document.getElementById('view-rashi-grid');
+            const kundliForm = document.getElementById('view-kundli-form');
+            const kundliResult = document.getElementById('view-kundli-result');
+            const mainHeading = document.getElementById('main-heading');
+            const subHeading = document.getElementById('sub-heading');
+
+            kundliResult.classList.add('hidden');
+
+            if (tabName === 'kundli') {
+                rashiGrid.classList.add('hidden');
+                kundliForm.classList.remove('hidden');
+                mainHeading.innerText = "જન્મ કુંડળી બનાવો";
+                subHeading.innerText = "તમારી વિગતો ભરો";
+            } else {
+                rashiGrid.classList.remove('hidden');
+                kundliForm.classList.add('hidden');
+                
+                if(tabName === 'dainik') {
+                    mainHeading.innerText = "આજનું રાશિફળ";
+                    subHeading.innerText = "રાશિ પસંદ કરો";
+                }
+                if(tabName === 'varshik') {
+                    mainHeading.innerText = "વાર્ષિક રાશિફળ";
+                    subHeading.innerText = "૨૦૮૧ નું ભવિષ્ય";
+                }
+                if(tabName === 'jivan') {
+                    mainHeading.innerText = "જીવન દર્પણ";
+                    subHeading.innerText = "તમારા વ્યક્તિત્વ વિશે";
+                }
+            }
+        }
+
+        // MODAL & DATA LOGIC
+        function openModal(rashiName) {
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modal-title');
+            const subtitle = document.getElementById('modal-subtitle');
+            const content = document.getElementById('modal-content');
+            const iconDiv = document.getElementById('modal-rashi-icon');
+
+            // Find SVG
+            const selectedRashi = rashis.find(r => r.id === rashiName);
+            iconDiv.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="${selectedRashi.svg}"></path></svg>`;
+
+            title.innerText = rashiName;
+            modal.classList.remove('hidden');
+
+            if (activeTab === 'dainik') {
+                subtitle.innerText = "આજનું રાશિફળ";
+                content.innerHTML = `
+                    <!-- Choghadiya Widget -->
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-xs text-gray-400">અત્યારનું ચોઘડિયું</p>
+                            <p class="text-app-yellow font-bold text-lg">લાભ</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-xs text-gray-400">આજનો શુભ રંગ</p>
+                             <div class="w-6 h-6 rounded-full bg-yellow-500 inline-block border border-white"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                            <p class="text-gray-200 text-sm leading-relaxed text-justify">
+                                <span class="text-3xl text-app-yellow float-left mr-2 font-serif">આ</span>જનો દિવસ આપના માટે ઉત્તમ ફળદાયી રહેશે. બપોર પછી આકસ્મિક ધનલાભના યોગ છે. પરિવારમાં શાંતિ જળવાશે. વિદ્યાર્થીઓ માટે સમય સાનુકૂળ છે.
+                            </p>
+                        </div>
+                        
+                        <h4 class="text-app-yellow font-bold text-sm mt-2 border-b border-white/10 pb-1">વિશેષ બાબતો</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-blue-500/10 p-3 rounded-lg border border-blue-500/20">
+                                <p class="text-blue-400 text-xs font-bold mb-1"><i class="fas fa-briefcase"></i> વેપાર</p>
+                                <p class="text-gray-400 text-[10px]">નવા રોકાણ માટે સમય સારો છે.</p>
+                            </div>
+                            <div class="bg-pink-500/10 p-3 rounded-lg border border-pink-500/20">
+                                <p class="text-pink-400 text-xs font-bold mb-1"><i class="fas fa-heart"></i> પ્રેમ</p>
+                                <p class="text-gray-400 text-[10px]">જીવનસાથીનો સહયોગ મળશે.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (activeTab === 'varshik') {
+                subtitle.innerText = "વિક્રમ સંવત ૨૦૮૧ (૧૨ મહિનાનું ફળ)";
+                const monthsData = [
+                    {m:'કારતક', p:'વર્ષની શરૂઆત ઉત્સાહજનક રહેશે. સ્નેહીજનો સાથે મુલાકાત થાય. ધાર્મિક પ્રવૃત્તિઓમાં રુચિ વધે. નવા કાર્યોના શ્રીગણેશ કરવા માટે ઉત્તમ સમય.'},
+                    {m:'માગશર', p:'આર્થિક દ્રષ્ટિએ આ મહિનો લાભદાયી છે. અટકેલા નાણાં પરત મળી શકે છે. શેર-સટ્ટાથી દૂર રહેવું. વિદ્યાર્થીઓ માટે અભ્યાસમાં એકાગ્રતા વધશે.'},
+                    {m:'પોષ', p:'વેપારમાં થોડી મંદી જોવા મળી શકે છે, ધીરજ રાખવી. આરોગ્યની બાબતમાં ખાસ સંભાળવું. વાહન ચલાવતા સાવધાની રાખવી જરૂરી છે.'},
+                    {m:'મહા', p:'લગ્ન ઈચ્છુક જાતકો માટે સારા માંગા આવે. પારિવારિક જીવનમાં સુખ-શાંતિ રહે. નાના પ્રવાસના યોગ બને છે.'},
+                    {m:'ફાગણ', p:'મિત્રો અને સગા-સંબંધીઓનો સહયોગ મળશે. નોકરીમાં બઢતી કે પગાર વધારાની શક્યતા છે. કલા અને સંગીત ક્ષેત્રે રુચિ વધશે.'},
+                    {m:'ચૈત્ર', p:'જમીન-મકાનના પ્રશ્નો ઉકેલાશે. માતાના સ્વાસ્થ્યનું ધ્યાન રાખવું. ગરમીને લગતી નાની બીમારીઓ પરેશાન કરી શકે છે.'},
+                    {m:'વૈશાખ', p:'ધંધામાં વિસ્તરણની યોજના બનાવી શકો. શત્રુઓ પર વિજય મળશે. કોર્ટ-કચેરીના કામમાં સફળતા મળવાની પ્રબળ શક્યતા છે.'},
+                    {m:'જેઠ', p:'સંતાન સંબંધી ચિંતાઓ દૂર થશે. દાંપત્ય જીવનમાં મધુરતા આવશે. ઉતાવળે કોઈ નિર્ણય લેવો નહીં, નુકસાન થઈ શકે છે.'},
+                    {m:'અષાઢ', p:'આધ્યાત્મિક કાર્યોમાં મન લાગશે. સમાજમાં માન-પ્રતિષ્ઠા વધશે. ખેતી કે જમીનને લગતા કાર્યોમાં લાભ થશે.'},
+                    {m:'શ્રાવણ', p:'ભાગ્યોદયની તકો મળશે. વિદ્યાર્થીઓ પરીક્ષામાં ઉત્તમ પરિણામ મેળવશે. શિવજીની ઉપાસનાથી વિશેષ લાભ થશે.'},
+                    {m:'ભાદરવો', p:'પૈસાની લેવડ-દેવડમાં સાવધાની રાખવી. ખોટા વાદ-વિવાદથી દૂર રહેવું. પેટને લગતી તકલીફો થઈ શકે છે.'},
+                    {m:'આસો', p:'વર્ષનો અંત શુભ સમાચાર લઈને આવશે. દિવાળી આસપાસ ધનલાભ થશે. નવા વસ્ત્રો અને આભૂષણોની ખરીદી થશે.'}
+                ];
+
+                let html = '<div class="grid grid-cols-1 gap-3">';
+                monthsData.forEach((item, i) => {
+                    html += `
+                    <div class="bg-white/5 p-4 rounded-lg border border-white/10 flex flex-col gap-2">
+                        <div class="flex items-center gap-2 border-b border-white/5 pb-2 mb-1">
+                             <div class="bg-app-yellow/20 text-app-yellow font-bold px-3 py-1 rounded text-xs min-w-[60px] text-center">${item.m}</div>
+                             <span class="text-xs text-gray-500">માસ ${i+1}</span>
+                        </div>
+                        <p class="text-gray-300 text-xs leading-relaxed text-justify">${item.p}</p>
+                    </div>`;
+                });
+                html += '</div>';
+                content.innerHTML = html;
+            }
+            else if (activeTab === 'jivan') {
+                subtitle.innerText = "સંપૂર્ણ જીવન વિશ્લેષણ";
+                content.innerHTML = `
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10 space-y-6">
+                         
+                         <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-user-circle text-app-yellow"></i>
+                                <h5 class="text-white text-sm font-bold">વ્યક્તિત્વ અને સ્વભાવ</h5>
+                            </div>
+                            <p class="text-gray-300 text-xs leading-6 text-justify">
+                                આ રાશિના જાતકો અત્યંત બુદ્ધિશાળી, દૂરંદેશી અને સાહસિક વૃત્તિના હોય છે. તેમનો સ્વભાવ મળતાવડો અને ખુશમિજાજ હોય છે, જેના કારણે સમાજમાં તેમનું મિત્ર વર્તુળ વિશાળ હોય છે. તેઓ સ્વભાવે થોડા જિદ્દી હોઈ શકે છે, પરંતુ તેમનું હૃદય કોમળ અને લાગણીશીલ હોય છે. અન્યાય સામે અવાજ ઉઠાવવો અને સત્યને વળગી રહેવું એ તેમનો વિશેષ ગુણ છે. મુશ્કેલ પરિસ્થિતિમાં પણ તેઓ રસ્તો કાઢી લે છે.
+                            </p>
+                         </div>
+
+                         <div class="h-px bg-white/10"></div>
+
+                         <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-briefcase text-blue-400"></i>
+                                <h5 class="text-white text-sm font-bold">શિક્ષણ અને કારકિર્દી</h5>
+                            </div>
+                            <p class="text-gray-300 text-xs leading-6 text-justify">
+                                વિદ્યાભ્યાસમાં શરૂઆતના તબક્કે થોડા અવરોધો આવી શકે છે, પરંતુ ઉચ્ચ શિક્ષણમાં તેઓ જ્વલંત સફળતા પ્રાપ્ત કરે છે. કારકિર્દીની દ્રષ્ટિએ ૨૪ થી ૨૮ વર્ષનો સમયગાળો સંઘર્ષમય હોઈ શકે છે, પરંતુ ૩૦ વર્ષ પછી તેમના જીવનમાં સ્થિરતા આવે છે. નોકરી કરતા સ્વતંત્ર વ્યવસાયમાં તેઓ વધુ સફળ થાય છે. મેનેજમેન્ટ, વહીવટી ક્ષેત્ર, કળા અથવા ટેકનોલોજીમાં તેઓ ઉજ્જવળ કારકિર્દી બનાવી શકે છે. આર્થિક રીતે તેઓ જીવનના મધ્ય ભાગમાં ખૂબ સદ્ધર બને છે.
+                            </p>
+                         </div>
+
+                         <div class="h-px bg-white/10"></div>
+
+                         <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-heart text-pink-400"></i>
+                                <h5 class="text-white text-sm font-bold">પ્રેમ અને પારિવારિક જીવન</h5>
+                            </div>
+                            <p class="text-gray-300 text-xs leading-6 text-justify">
+                                પ્રેમ સંબંધોમાં તેઓ અત્યંત વફાદાર અને સમર્પિત હોય છે. તેમનું લગ્ન જીવન સામાન્ય રીતે સુખદ રહે છે. જીવનસાથી સમજદાર અને સહયોગી મળે છે. ક્યારેક નાની બાબતોમાં મતભેદ થઈ શકે છે, પરંતુ તે લાંબો સમય ટકતા નથી. સંતાન સુખ મધ્યમ રહે છે, પરંતુ સંતાનો પ્રગતિશીલ અને સંસ્કારી હોય છે. પરિવાર પ્રત્યેની તેમની ફરજો તેઓ નિષ્ઠાપૂર્વક બજાવે છે.
+                            </p>
+                         </div>
+
+                         <div class="h-px bg-white/10"></div>
+
+                         <div>
+                             <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-medkit text-green-400"></i>
+                                <h5 class="text-white text-sm font-bold">આરોગ્ય અને વૃદ્ધાવસ્થા</h5>
+                            </div>
+                            <p class="text-gray-300 text-xs leading-6 text-justify">
+                                સામાન્ય રીતે તેમનું સ્વાસ્થ્ય સારું રહે છે. પરંતુ જીવનના ઉત્તરાર્ધમાં પેટને લગતી બીમારીઓ અથવા સાંધાના દુખાવા જેવી તકલીફો થઈ શકે છે. નિયમિત યોગ અને પ્રાણાયામ તેમના માટે લાભદાયી રહેશે. વૃદ્ધાવસ્થા શાંતિપૂર્ણ અને સન્માનજનક રહેશે. ધાર્મિક અને સામાજિક પ્રવૃત્તિઓમાં પાછલી ઉંમરે તેમનું મન વધુ પરોવાયેલું રહેશે. એકંદરે, આ રાશિના જાતકો એક સંતોષકારક અને સફળ જીવન જીવે છે.
+                            </p>
+                         </div>
+                    </div>
+                `;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function submitKundli(e) {
+            e.preventDefault();
+            const name = document.getElementById('k_name').value;
+            const date = document.getElementById('k_date').value;
+            const time = document.getElementById('k_time').value;
+            const place = document.getElementById('k_place').value;
+
+            document.getElementById('res-name').innerText = name;
+            document.getElementById('res-date').innerText = date;
+            document.getElementById('res-time').innerText = time;
+            document.getElementById('res-place').innerText = place;
+
+            document.getElementById('view-kundli-form').classList.add('hidden');
+            document.getElementById('view-kundli-result').classList.remove('hidden');
+            
+            document.getElementById('main-heading').innerText = "કુંડળી ફળ";
+            document.getElementById('sub-heading').innerText = "તમારું ભવિષ્યફળ";
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        function resetKundli() {
+             document.getElementById('view-kundli-result').classList.add('hidden');
+             document.getElementById('view-kundli-form').classList.remove('hidden');
+             document.getElementById('main-heading').innerText = "જન્મ કુંડળી બનાવો";
+             document.getElementById('sub-heading').innerText = "તમારી વિગતો ભરો";
+             document.getElementById('kundliFormElement').reset();
+        }
+    </script>
+</body>
+</html>
+
+
